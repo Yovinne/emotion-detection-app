@@ -6,7 +6,7 @@ import cv2
 import os
 
 app = Flask(__name__)
-model = load_model('emotion_detection_model.h5')
+model = load_model('emotion_detection_model.keras')
 emotion_labels = ['Angry', 'Disgust', 'Fear', 'Happy', 'Sad', 'Surprise', 'Neutral']
 
 @app.route('/')
