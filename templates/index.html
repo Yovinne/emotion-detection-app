@@ -2,57 +2,89 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Emotion Detection</title>
+    <title>Emotion Detection App</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            background-color: #f0f8ff;
-            color: #333;
+            background: #f0f4f8;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 60px;
         }
+
         h1 {
-            color: #333;
+            color: #2c3e50;
+            font-size: 2.5rem;
+            margin-bottom: 20px;
         }
-        .form-container {
-            margin-top: 50px;
+
+        form {
+            background: white;
+            padding: 30px 40px;
+            border-radius: 12px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+            text-align: center;
         }
-        .form-container input {
-            margin-top: 20px;
+
+        input[type="file"] {
+            margin: 20px 0;
             padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            width: 100%;
         }
-        .form-container button {
-            padding: 10px 20px;
-            background-color: #007bff;
+
+        button {
+            background-color: #3498db;
             color: white;
+            padding: 12px 25px;
             border: none;
+            border-radius: 8px;
             cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
         }
-        .form-container button:hover {
-            background-color: #0056b3;
+
+        button:hover {
+            background-color: #2980b9;
+        }
+
+        .result {
+            margin-top: 30px;
+            font-size: 22px;
+            color: #27ae60;
+            background: #ecf9f1;
+            padding: 20px 30px;
+            border-radius: 10px;
+            border: 1px solid #27ae60;
+            display: inline-block;
+        }
+
+        footer {
+            margin-top: 60px;
+            font-size: 14px;
+            color: #888;
         }
     </style>
 </head>
 <body>
-
-    <h1>Upload an Image for Emotion Detection</h1>
+    <h1>Emotion Detection App</h1>
     
-    <div class="form-container">
-        <form action="/upload" method="POST" enctype="multipart/form-data">
-            <input type="file" name="file" required>
-            <button type="submit">Upload Image</button>
-        </form>
-    </div>
+    <form method="POST" action="/predict" enctype="multipart/form-data">
+        <input type="file" name="image" accept="image/*" required>
+        <br>
+        <button type="submit">Predict Emotion</button>
+    </form>
 
-    {% with messages = get_flashed_messages() %}
-        {% if messages %}
-            <ul>
-                {% for message in messages %}
-                    <li>{{ message }}</li>
-                {% endfor %}
-            </ul>
-        {% endif %}
-    {% endwith %}
+    {% if prediction %}
+        <div class="result">
+            <strong>Predicted Emotion:</strong> {{ prediction }}
+        </div>
+    {% endif %}
 
+    <footer>
+        Created with ❤️ by Yovinne | Flask + TensorFlow
+    </footer>
 </body>
 </html>

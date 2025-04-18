@@ -1,61 +1,42 @@
-import os
-from flask import Flask, render_template, request, redirect, url_for, flash
-from werkzeug.utils import secure_filename
-import cv2
+from flask import Flask, render_template, request
+from PIL import Image
 import numpy as np
-from dotenv import load_dotenv
+import tensorflow as tf
+import os
 
-# Load environment variables
-load_dotenv()
-
+# Initialize the app
 app = Flask(__name__)
 
-# Configurations
-app.config['UPLOAD_FOLDER'] = 'static/uploads'
-app.config['ALLOWED_EXTENSIONS'] = {'png', 'jpg', 'jpeg'}
-app.secret_key = os.getenv('SECRET_KEY')
+# Load the model (make sure the .h5 file is in the same directory or provide correct path)
+model = tf.keras.models.load_model('emotion_detection_model.keras')
 
-# Function to check allowed file extensions
-def allowed_file(filename):
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in app.config['ALLOWED_EXTENSIONS']
-
-# Dummy emotion detection function
-def predict_emotion(image_path):
-    # Load a dummy emotion, replace this with your model prediction
-    emotions = ['Happy', 'Sad', 'Angry', 'Surprised', 'Neutral']
-    return np.random.choice(emotions)
+# Define emotion labels
+emotion_labels = ['Angry', 'Disgust', 'Fear', 'Happy', 'Sad', 'Surprise', 'Neutral']
 
 @app.route('/')
-def index():
-    return render_template('index.html')
+def home():
+    return render_template('index.html', prediction=None)
 
-@app.route('/upload', methods=['POST'])
-def upload():
-    if 'file' not in request.files:
-        flash('No file part')
-        return redirect(url_for('index'))
-    
-    file = request.files['file']
+@app.route('/predict', methods=['POST'])
+def predict():
+    if 'image' not in request.files:
+        return render_template('index.html', prediction="No image uploaded.")
+
+    file = request.files['image']
     if file.filename == '':
-        flash('No selected file')
-        return redirect(url_for('index'))
+        return render_template('index.html', prediction="No selected image.")
 
-    if file and allowed_file(file.filename):
-        filename = secure_filename(file.filename)
-        filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-        file.save(filepath)
+    # Preprocess image
+    img = Image.open(file).convert('L')  # grayscale
+    img = img.resize((48, 48))  # Resize to match model input
+    img_array = np.array(img)
+    img_array = img_array.reshape(1, 48, 48, 1) / 255.0
 
-        emotion = predict_emotion(filepath)
-        return render_template('result.html', filename=filename, emotion=emotion)
+    # Predict
+    prediction = model.predict(img_array)
+    predicted_class = emotion_labels[np.argmax(prediction)]
 
-    else:
-        flash('Invalid file format. Please upload a jpg or png.')
-        return redirect(url_for('index'))
-
-# Route for viewing uploaded file
-@app.route('/static/uploads/<filename>')
-def uploaded_file(filename):
-    return redirect(url_for('static', filename=f'uploads/{filename}'))
+    return render_template('index.html', prediction=predicted_class)
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 10000)), debug=True)
+    app.run(debug=True)
