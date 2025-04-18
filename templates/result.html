@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emotion Detection Result</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f0f8ff;
+            color: #333;
+        }
+        h1 {
+            color: #333;
+        }
+        img {
+            max-width: 100%;
+            height: auto;
+            margin: 20px 0;
+        }
+        .result {
+            font-size: 24px;
+            color: #007bff;
+        }
+        .back-btn {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        .back-btn:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Emotion Detection Result</h1>
+    
+    <img src="{{ url_for('static', filename='uploads/' + filename) }}" alt="Uploaded Image">
+    
+    <div class="result">
+        <h2>Predicted Emotion: {{ emotion }}</h2>
+    </div>
+
+    <a href="{{ url_for('index') }}">
+        <button class="back-btn">Go Back</button>
+    </a>
+
+</body>
+</html>
